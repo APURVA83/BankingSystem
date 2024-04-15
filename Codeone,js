@@ -1,0 +1,147 @@
+// Create a transfer
+app.post('/api/transfers', (req, res) => {
+    const { sender_id, receiver_id, amount } = req.body;
+    const sqlGetSenderBalance = 'SELECT account_balance FROM Users WHERE id = ?';
+    const sqlGetReceiverBalance = 'SELECT account_balance FROM Users WHERE id = ?';
+    const sqlCreateTransfer = 'INSERT INTO Transfers (sender_id, receiver_id, amount) VALUES (?, ?, ?)';
+    const sqlUpdateSenderBalance = 'UPDATE Users SET account_balance = ? WHERE id = ?';
+    const sqlUpdateReceiverBalance = 'UPDATE Users SET account_balance = ? WHERE id = ?';
+
+    // Check if sender has sufficient balance
+    db.query(sqlGetSenderBalance, [sender_id], (err, result) => {
+        if (err) throw err;
+        const senderBalance = result[0].account_balance;
+        if (senderBalance < amount) {
+            return res.status(400).json({ error: 'Insufficient balance' });
+        }
+
+        // Start the transaction
+        db.beginTransaction((err) => {
+            if (err) throw err;
+
+            // Deduct amount from sender's balance
+            const updatedSenderBalance = senderBalance - amount;
+            db.query(sqlUpdateSenderBalance, [updatedSenderBalance, sender_id], (err, result) => {
+                if (err) {
+                    db.rollback(() => {
+                        throw err;
+                    });
+                }
+
+                // Add amount to receiver's balance
+                db.query(sqlGetReceiverBalance, [receiver_id], (err, result) => {
+                    if (err) {
+                        db.rollback(() => {
+                            throw err;
+                        });
+                    }
+                    const receiverBalance = result[0].account_balance;
+                    const updatedReceiverBalance = receiverBalance + amount;
+                    db.query(sqlUpdateReceiverBalance, [updatedReceiverBalance, receiver_id], (err, result) => {
+                        if (err) {
+                            db.rollback(() => {
+                                throw err;
+                            });
+                        }
+
+                        // Create transfer record
+                        db.query(sqlCreateTransfer, [sender_id, receiver_id, amount], (err, result) => {
+                            if (err) {
+                                db.rollback(() => {
+                                    throw err;
+                                });
+                            }
+
+                            // Commit the transaction
+                            db.commit((err) => {
+                                if (err) {
+                                    db.rollback(() => {
+                                        throw err;
+                                    });
+                                }
+                                res.status(201).send('Transfer created successfully');
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+
+// Create a transfer
+app.post('/api/transfers', async (req, res) => {
+    const { sender_id, receiver_id, amount } = req.body;
+    const sqlGetSenderBalance = 'SELECT account_balance FROM Users WHERE id = ?';
+    const sqlGetReceiverBalance = 'SELECT account_balance FROM Users WHERE id = ?';
+    const sqlCreateTransfer = 'INSERT INTO Transfers (sender_id, receiver_id, amount) VALUES (?, ?, ?)';
+    const sqlUpdateSenderBalance = 'UPDATE Users SET account_balance = ? WHERE id = ?';
+    const sqlUpdateReceiverBalance = 'UPDATE Users SET account_balance = ? WHERE id = ?';
+
+    try {
+        // Check if sender has sufficient balance
+        const [senderBalanceRows] = await db.query(sqlGetSenderBalance, [sender_id]);
+        const senderBalance = senderBalanceRows[0].account_balance;
+        if (senderBalance < amount) {   
+            return res.status(400).json({ error: 'Insufficient balance' });
+        }
+
+        // Start the transaction
+        await db.beginTransaction();
+
+        // Deduct amount from sender's balance
+        const updatedSenderBalance = senderBalance - amount; //500  - 400 = 100
+        await db.query(sqlUpdateSenderBalance, [updatedSenderBalance, sender_id]);
+
+        // Add amount to receiver's balance
+        const [receiverBalanceRows] = await db.query(sqlGetReceiverBalance, [receiver_id]);
+        const receiverBalance = receiverBalanceRows[0].account_balance;
+        const updatedReceiverBalance = receiverBalance + amount;
+        await db.query(sqlUpdateReceiverBalance, [updatedReceiverBalance, receiver_id]);
+
+        // Create transfer record
+        await db.query(sqlCreateTransfer, [sender_id, receiver_id, amount]);
+
+        // Commit the transaction
+        await db.commit();
+
+        res.status(201).send('Transfer created successfully');
+    } catch (err) {
+        await db.rollback();
+        throw err;
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+// Create a transfer
+app.post('/api/transfers', (req, res) => {
+    const { sender_id, receiver_id, amount } = req.body;
+    const sql = 'INSERT INTO Transfers (sender_id, receiver_id, amount) VALUES (?, ?, ?)';
+    db.query(sql, [sender_id, receiver_id, amount], (err, result) => {
+        if (err) {
+            res.status(500).send('Error creating transfer');
+        } else {
+            res.status(201).send('Transfer created successfully');
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
