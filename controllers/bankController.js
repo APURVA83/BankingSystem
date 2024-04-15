@@ -58,7 +58,7 @@ const UpdateTransfers = AsyncHandler ( async (req,res) => {
         console.log(req.body.sender_id, req.body.amount)
        // const sqlGetSenderBalance = 'SELECT account_balance FROM `Users` WHERE id = ?';
         const sqlGetReceiverBalance = 'SELECT account_balance FROM `Users` WHERE id = ?';
-        const sqlCreateTransfer = 'INSERT INTO `transfers` (sender_id, receiver_id, amount) VALUES (?, ?, ?)';
+        const sqlCreateTransfer = 'INSERT INTO `Transfers` (sender_id, receiver_id, amount) VALUES (?, ?, ?)';
         const sqlUpdateSenderBalance = 'UPDATE `Users` SET account_balance = ? WHERE id = ?';
         const sqlUpdateReceiverBalance = 'UPDATE `Users` SET account_balance = ? WHERE id = ?';
 
