@@ -4,6 +4,7 @@ node_modules
 .pnp.js
 .env
 
+#misc
 # misc
 .DS_Store
 
