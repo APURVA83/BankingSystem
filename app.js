@@ -1,4 +1,7 @@
 import express from 'express';
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 import con from './config/db.js'
 import  {getUserEntries, UpdateTransfers, getSingleUser }  from './controllers/bankController.js'
@@ -19,7 +22,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-const port = 5000
+const port = process.env.port
 
 
 

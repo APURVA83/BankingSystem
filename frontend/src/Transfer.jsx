@@ -60,42 +60,63 @@ function Transfer() {
   const filteredDataOne = DataOne.filter((user) => user.id !== DataTwo[0]?.id);
 
   return (
-    <div className='d-flex vh-100 bg-primary justify-content-center align-items-center'>
-      <div className='w-50 bg-white rounded p-3'>
-        <form onSubmit={handleSubmit}>
-          <h2>Make Transfers</h2>
-          <div className='mb-2'>
-            <label htmlFor="">{DataTwo.length > 0 ? DataTwo[0].username : 'User'}</label>
+    <section className="p-4 p-md-5" style={{backgroundColor: 'white'}}>
+      <div className="row d-flex justify-content-center">
+        <div className="col-md-10 col-lg-8 col-xl-5">
+          <div className="card rounded-3">
+            <div className="card-body p-4">
+              <div className="text-center mb-4">
+                <h3>Transfer</h3>
+                <h6>Payment</h6>
+              </div>
+              <form onSubmit={handleSubmit}>
+                <p className="fw-bold mb-4 pb-2">Sender:</p>
+
+                <div className="d-flex flex-row align-items-center mb-4 pb-1">
+                  <div className="flex-fill mx-3">
+                    <div className="form-outline">
+                      <input type="text" className="form-control form-control-lg" value={DataTwo.length > 0 ? DataTwo[0].username : 'User'} disabled />
+              
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mb-2">
+                  <label htmlFor="">Balance:</label>
+                  <p>{DataTwo.length > 0 ? DataTwo[0].account_balance : 'Balance'}</p>
+                </div>
+
+                <p className="fw-bold mb-4">Receiver:</p>
+
+                <div className="mb-2">
+                  <select onChange={handleRoleChange} value={selectedRole} className="form-select form-select-lg">
+                    <option value="">Select</option>
+                    {filteredDataOne.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.username}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-2">
+                  <label htmlFor="">Amount:</label>
+                  <input type="number" value={amount} onChange={handleAmountChange} className="form-control form-control-lg" />
+                </div>
+
+                <button type="submit" className="btn btn-success btn-lg btn-block">Transfer</button>
+              </form>
+              {transferSuccess && (
+                <p className="mt-3 text-success">
+                  Transfer successful! Updated Balance: {DataTwo[0]?.account_balance - amount}
+                </p>
+              )}
+              <Link to="/" className="btn btn-primary btn-lg btn-block mt-3">Go Back Home</Link>
+            </div>
           </div>
-          <div className='mb-2'>
-            <label htmlFor="">Balance</label>
-            <p>{DataTwo.length > 0 ? DataTwo[0].account_balance : 'Balance'}</p>
-          </div>
-          <div className='mb-2'>
-            <label htmlFor="">Choose the User</label>
-            <select onChange={handleRoleChange} value={selectedRole}>
-              <option value="">Select</option>
-              {filteredDataOne.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.username}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className='mb-2'>
-            <label htmlFor="">Enter Amount</label>
-            <input type="number" value={amount} onChange={handleAmountChange} />
-          </div>
-          <button type="submit">Transfer</button>
-        </form>
-        {transferSuccess && (
-          <p>
-            Transfer successful! Updated Balance: {DataTwo[0]?.account_balance - amount}
-          </p>
-        )}
-        <Link to="/">Go Back Home</Link>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
